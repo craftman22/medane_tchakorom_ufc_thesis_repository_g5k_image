@@ -27,7 +27,7 @@ global:
     #grid5000_site: "grenoble"
 
     ## Environment to build from
-    grid5000_environment_import_name: "debian11-nfs"
+    grid5000_environment_import_name: "debian11-base"
     #grid5000_environment_import_user: "deploy"
     #grid5000_environment_import_version: ""
     #grid5000_environment_import_arch: "x86_64"
@@ -78,12 +78,12 @@ setup:
     ### The setup section is where to place your customization. Add all steps
     ## required by your customization.
     ## The following is given as example only, replace with your steps.
-    - a_customization_step:
-          - microstep1:
-                - exec_in: echo "Hello world!"
-          - microstep1:
-                # This breakpoint will stop the build for inspecting the environment
-                - breakpoint
+    # - a_customization_step:
+    #       - microstep1:
+    #             - exec_in: echo "Hello world!"
+    #       - microstep1:
+    #             # This breakpoint will stop the build for inspecting the environment
+    #             - breakpoint
 
     - my_custom_steps:
             - installing_basic_packages:
@@ -99,7 +99,7 @@ setup:
                 - exec_in: |
                       useradd -m -s /bin/bash -d /home/craftman craftman
                       echo "craftman:g5k" |  chpasswd
-                - breakpoint
+                # - breakpoint
             - cloning_petsc_repo_and_configure:
                 - exec_in: |
                     echo "127.0.0.1 debian" |  tee -a /etc/hosts 
@@ -110,11 +110,11 @@ setup:
                     sudo -u craftman git checkout v3.22.1
                     sudo -u craftman ./configure --with-cc=gcc --with-cxx=g++ --with-fc=gfortran --with-debugging=1 --download-mpich --download-fblaslapack
                     sudo -u craftman make all check
-                    sudo -u craftman echo "export PETSC_DIR=/home/craftman" |  tee -a /home/craftman/.bashrc
+                    sudo -u craftman echo "export PETSC_DIR=/home/craftman/petsc" |  tee -a /home/craftman/.bashrc
                     sudo -u craftman echo "export PETSC_ARCH=arch-linux-c-debug" |  tee -a /home/craftman/.bashrc
                     sudo -u craftman echo "export PATH=$PETSC_DIR/lib/petsc/bin:$PATH" |  tee -a /home/craftman/.bashrc
                     sudo -u craftman echo "export EDITOR=nano" |  tee -a /home/craftman/.bashrc
-                - breakpoint
+            #     - breakpoint
 # - cloning_code_repo:
 #     - exec_in: |
 #         cd /home/craftman
