@@ -17,75 +17,111 @@
 extend: grid5000/from_grid5000_environment/base.yaml
 
 global:
-  ### Grid'5000 environment information
-  ## (Uncomment and change any line if needed)
+    ### Grid'5000 environment information
+    ## (Uncomment and change any line if needed)
 
-  ## Frontend to run kaenv3 on
-  #grid5000_frontend: "frontend"
+    ## Frontend to run kaenv3 on
+    #grid5000_frontend: "frontend"
 
-  ## Site used in the build
-  #grid5000_site: "grenoble"
+    ## Site used in the build
+    #grid5000_site: "grenoble"
 
-  ## Environment to build from
-  #grid5000_environment_import_name: "debian11-min"
-  #grid5000_environment_import_user: "deploy"
-  #grid5000_environment_import_version: ""
-  #grid5000_environment_import_arch: "x86_64"
+    ## Environment to build from
+    grid5000_environment_import_name: "debian11-nfs"
+    #grid5000_environment_import_user: "deploy"
+    #grid5000_environment_import_version: ""
+    #grid5000_environment_import_arch: "x86_64"
 
-  ## New environment description
-  #grid5000_environment_export_name: "$${kameleon_recipe_name}"
-  #grid5000_environment_export_format: "tar.zst"
-  #grid5000_environment_export_description: "Customized $${grid5000_environment_import_name}"
-  #grid5000_environment_export_visibility: "shared"
+    ## New environment description
+    #grid5000_environment_export_name: "$${kameleon_recipe_name}"
+    #grid5000_environment_export_format: "tar.zst"
+    #grid5000_environment_export_description: "Customized $${grid5000_environment_import_name}"
+    #grid5000_environment_export_visibility: "shared"
 
-  ## Set where to store the environment and the assiated kadeploy URL base
-  #grid5000_environment_export_dir: "$HOME/public/"
-  #grid5000_environment_export_baseurl: "local://$HOME/public/"
+    ## Set where to store the environment and the assiated kadeploy URL base
+    #grid5000_environment_export_dir: "$HOME/public/"
+    #grid5000_environment_export_baseurl: "local://$HOME/public/"
 
-  ## Optionaly, the environment postinstall script can be changed, e.g. to
-  ## enable NFS homes, LDAP accounts, if not enabled in the imported env.
-  #grid5000_environment_export_postinstall_script: "g5k-postinstall --net debian --fstab nfs --restrict-user current"
+    ## Optionaly, the environment postinstall script can be changed, e.g. to
+    ## enable NFS homes, LDAP accounts, if not enabled in the imported env.
+    #grid5000_environment_export_postinstall_script: "g5k-postinstall --net debian --fstab nfs --restrict-user current"
 
-  ## Optionaly, an additional postinstall can be given, e.g. to do some custom
-  ## operations. Use the following variables to set the archive name and script.
-  #grid5000_environment_export_additional_postinstall_archive: "$${kameleon_recipe_name}-additional-postinstall.tar.gz"
-  #grid5000_environment_export_additional_postinstall_script: "additional_postinstall.sh"
-  ## The recipe will have to prepare the additional postinstall content in a
-  ## directory to create in the local context and name "additional_postinstall"
-  ## by default (next line to change it). The archive is created by the export.
-  #grid5000_environment_export_additional_postinstall_dir: "additional_postinstall"
+    ## Optionaly, an additional postinstall can be given, e.g. to do some custom
+    ## operations. Use the following variables to set the archive name and script.
+    #grid5000_environment_export_additional_postinstall_archive: "$${kameleon_recipe_name}-additional-postinstall.tar.gz"
+    #grid5000_environment_export_additional_postinstall_script: "additional_postinstall.sh"
+    ## The recipe will have to prepare the additional postinstall content in a
+    ## directory to create in the local context and name "additional_postinstall"
+    ## by default (next line to change it). The archive is created by the export.
+    #grid5000_environment_export_additional_postinstall_dir: "additional_postinstall"
 
-  ### Target machine/CPU architecture
-  ## If building an environment for another architecture than x86_64, you may need to
-  ## uncomment and adapt the next lines, in order for qemu to function.
-  ## Set the qemu arch name: qemu uses ppc64, not ppc64le.
-  #qemu_arch: ppc64
-  ## Make qemu use UEFI (required for aarch64 and ppc64).
-  #qemu_uefi: true
+    ### Target machine/CPU architecture
+    ## If building an environment for another architecture than x86_64, you may need to
+    ## uncomment and adapt the next lines, in order for qemu to function.
+    ## Set the qemu arch name: qemu uses ppc64, not ppc64le.
+    #qemu_arch: ppc64
+    ## Make qemu use UEFI (required for aarch64 and ppc64).
+    #qemu_uefi: true
 
-  ### You can add below any other global variable definition
-  ## See the variables which can be overloaded, by running:
-  ##   kameleon info os_env.yaml
-  ## Or define any new variable you would need. e.g.:
-  #my_variable: my_value
+    ### You can add below any other global variable definition
+    ## See the variables which can be overloaded, by running:
+    ##   kameleon info os_env.yaml
+    ## Or define any new variable you would need. e.g.:
+    #my_variable: my_value
 
 bootstrap:
-  ### The bootstrap section takes in charge the import of the Grid'5000
-  ## environment to customize. No modification should be needed here.
-  - "@base"
+    ### The bootstrap section takes in charge the import of the Grid'5000
+    ## environment to customize. No modification should be needed here.
+    - "@base"
 
 setup:
-  ### The setup section is where to place your customization. Add all steps
-  ## required by your customization.
-  ## The following is given as example only, replace with your steps.
-  - a_customization_step:
-    - microstep1:
-      - exec_in: echo "Hello world!"
-    - microstep1:
-      # This breakpoint will stop the build for inspecting the environment
-      - breakpoint
+    ### The setup section is where to place your customization. Add all steps
+    ## required by your customization.
+    ## The following is given as example only, replace with your steps.
+    - a_customization_step:
+          - microstep1:
+                - exec_in: echo "Hello world!"
+          - microstep1:
+                # This breakpoint will stop the build for inspecting the environment
+                - breakpoint
+
+    - my_custom_steps:
+            - installing_basic_packages:
+                - exec_in: |
+                    apt-get update
+                    apt-get install -y git
+                    apt-get install -y autoconf automake libtool
+                    apt-get install -y make
+                    apt-get install -y gcc g++ gfortran
+                    apt-get install -y pkg-config
+                    apt-get install -y build-essential
+            - creating_user:
+                - exec_in: |
+                      useradd -m -s /bin/bash -d /home/craftman craftman
+                      echo "craftman:g5k" |  chpasswd
+                - breakpoint
+            - cloning_petsc_repo_and_configure:
+                - exec_in: |
+                    echo "127.0.0.1 debian" |  tee -a /etc/hosts 
+                    cd /home/craftman
+                    sudo -u craftman git clone -b release https://gitlab.com/petsc/petsc.git petsc
+                    cd petsc
+                    sudo -u craftman git pull
+                    sudo -u craftman git checkout v3.22.1
+                    sudo -u craftman ./configure --with-cc=gcc --with-cxx=g++ --with-fc=gfortran --with-debugging=1 --download-mpich --download-fblaslapack
+                    sudo -u craftman make all check
+                    sudo -u craftman echo "export PETSC_DIR=/home/craftman" |  tee -a /home/craftman/.bashrc
+                    sudo -u craftman echo "export PETSC_ARCH=arch-linux-c-debug" |  tee -a /home/craftman/.bashrc
+                    sudo -u craftman echo "export PATH=$PETSC_DIR/lib/petsc/bin:$PATH" |  tee -a /home/craftman/.bashrc
+                    sudo -u craftman echo "export EDITOR=nano" |  tee -a /home/craftman/.bashrc
+                - breakpoint
+# - cloning_code_repo:
+#     - exec_in: |
+#         cd /home/craftman
+#         sudo -u craftman git clone git@github.com:craftman22/medane_tchakorom_ufc_thesis_repository.git
+#     - breakpoint
 
 export:
-  ### The export section takes in charge the export of your customized Grid'5000
-  ## environment. No modification should be needed here.
-  - "@base"
+    ### The export section takes in charge the export of your customized Grid'5000
+    ## environment. No modification should be needed here.
+    - "@base"
