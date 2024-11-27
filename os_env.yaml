@@ -115,6 +115,19 @@ setup:
                     sudo -u craftman echo "export PATH=$PETSC_DIR/lib/petsc/bin:$PATH" |  tee -a /home/craftman/.bashrc
                     sudo -u craftman echo "export EDITOR=nano" |  tee -a /home/craftman/.bashrc
             #     - breakpoint
+            - cloning_code_repo:
+                - exec_in: |
+                    cd /home/craftman
+                    sudo -u craftman git clone https://github.com/craftman22/medane_tchakorom_ufc_thesis_repository.git
+            #     - breakpoint
+            - copy_authorized_key:
+                - exec_in: |
+                    sudo -u craftman mkdir -p /home/craftman/.ssh
+                    cd /home/craftman/.ssh
+                    sudo -u craftman touch authorized_keys
+                - local2in:
+                    - /home/mtchakorom/.ssh/authorized_keys
+                    - /home/craftman/.ssh/authorized_keys
 # - cloning_code_repo:
 #     - exec_in: |
 #         cd /home/craftman
