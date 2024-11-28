@@ -27,7 +27,7 @@ global:
     #grid5000_site: "grenoble"
 
     ## Environment to build from
-    grid5000_environment_import_name: "debian11-base"
+    grid5000_environment_import_name: "debian12-min"
     #grid5000_environment_import_user: "deploy"
     #grid5000_environment_import_version: ""
     #grid5000_environment_import_arch: "x86_64"
@@ -69,6 +69,9 @@ global:
     ## Or define any new variable you would need. e.g.:
     #my_variable: my_value
 
+    backend: docker
+    authorized_keys_file: "$HOME/.ssh/authorized_keys"
+
 bootstrap:
     ### The bootstrap section takes in charge the import of the Grid'5000
     ## environment to customize. No modification should be needed here.
@@ -89,6 +92,7 @@ setup:
             - installing_basic_packages:
                 - exec_in: |
                     apt-get update
+                    apt-get install -y sudo
                     apt-get install -y git
                     apt-get install -y autoconf automake libtool
                     apt-get install -y make
@@ -97,12 +101,20 @@ setup:
                     apt-get install -y build-essential
             - creating_user:
                 - exec_in: |
-                      useradd -m -s /bin/bash -d /home/craftman craftman
-                      echo "craftman:g5k" |  chpasswd
+                    useradd -m -s /bin/bash -d /home/craftman craftman
+                    echo "craftman:g5k" |  chpasswd
+                    install -d -o craftman -g craftman -m 0700 /home/craftman/.ssh
+                    install -o craftman -g craftman -m 0644 /dev/null /home/craftman/.ssh/authorized_keys
+                - local2in:
+                    - $${authorized_keys_file}
+                    - /home/craftman/.ssh/authorized_keys
+            - configure_sudo:
+                - exec_in: |
+                    echo "craftman ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/craftman
+                    echo "127.0.42.1 $(hostname)" |  tee -a /etc/hosts
                 # - breakpoint
             - cloning_petsc_repo_and_configure:
                 - exec_in: |
-                    echo "127.0.0.1 debian" |  tee -a /etc/hosts 
                     cd /home/craftman
                     sudo -u craftman git clone -b release https://gitlab.com/petsc/petsc.git petsc
                     cd petsc
@@ -120,14 +132,6 @@ setup:
                     cd /home/craftman
                     sudo -u craftman git clone https://github.com/craftman22/medane_tchakorom_ufc_thesis_repository.git
             #     - breakpoint
-            - copy_authorized_key:
-                - exec_in: |
-                    sudo -u craftman mkdir -p /home/craftman/.ssh
-                    cd /home/craftman/.ssh
-                    sudo -u craftman touch authorized_keys
-                - local2in:
-                    - /home/mtchakorom/.ssh/authorized_keys
-                    - /home/craftman/.ssh/authorized_keys
 # - cloning_code_repo:
 #     - exec_in: |
 #         cd /home/craftman
