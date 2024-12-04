@@ -102,7 +102,7 @@ setup:
                 # - breakpoint
             - cloning_petsc_repo_and_configure:
                 - exec_in: |
-                    echo "127.0.0.1 debian" |  tee -a /etc/hosts 
+                    echo "127.0.42.1 $(hostname)" |  tee -a /etc/hosts 
                     cd /home/craftman
                     sudo -u craftman git clone -b release https://gitlab.com/petsc/petsc.git petsc
                     cd petsc
